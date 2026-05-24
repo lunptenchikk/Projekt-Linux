@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "../../test_rec"
+		},
+		{
+			"path": "../../train_rec_neg"
+		},
+		{
+			"path": "../../train_rec_pos"
+		}
+	],
+	"settings": {}
+}

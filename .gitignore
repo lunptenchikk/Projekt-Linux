@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.env
+.venv/
+
+textgen/out/
+caption/out/
+sentiment/out/
+
+*.pt
+.cache/
