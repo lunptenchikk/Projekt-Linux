@@ -30,7 +30,7 @@ I generate captions for images using
 
 The model analyzes the image and produces a short descriptive sentence.
 
-### Running with Docker
+## Running with Docker
 
 ## 1. Build Docker Image
 ``` docker build -t tzp-f-huggingface ```
