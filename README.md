@@ -1,4 +1,4 @@
-# TZP F – Hugging Face Transformers
+# Hugging Face Transformers
 
 This project uses pre-trained models from **Hugging Face Transformers** to solve three tasks: sentiment analysis, text generation, and image captioning.
 
