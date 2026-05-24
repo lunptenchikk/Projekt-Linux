@@ -1,6 +1,8 @@
 # textgen/hf_textgen.py
 
-
+import os
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 import argparse
 
 from pathlib import Path
@@ -49,6 +51,8 @@ def main():
     gen_kwargs = {
         "max_new_tokens": args.len,
         "pad_token_id": tok.eos_token_id,
+        "no_repeat_ngram_size": 3,
+        "repetition_penalty": 1.2,
     }
 
 
