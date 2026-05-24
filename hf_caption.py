@@ -1,67 +1,46 @@
-# caption/hf_caption.py
 import argparse
-
 from pathlib import Path
 
+import torch
 from PIL import Image
-from transformers import pipeline
+from transformers import BlipProcessor, BlipForConditionalGeneration
 
 
 def main():
-    
-    ap = argparse.ArgumentParser()
-    
-    # help dla siebie, zeby sie orientowac
-    ap.add_argument("images_dir", help="Folder with images, e.g. caption/images")
-    
-    ap.add_argument("out_path", help="Output file, e.g. caption/out/captions.txt")
-    
-    ap.add_argument("--model", default="Salesforce/blip-image-captioning-base")
-    args = ap.parse_args()
-
-
+    parser = argparse.ArgumentParser()
+    parser.add_argument("images_dir")
+    parser.add_argument("out_path")
+    parser.add_argument("--model", default="Salesforce/blip-image-captioning-base")
+    args = parser.parse_args()
 
     images_dir = Path(args.images_dir)
-    
-    
     out_path = Path(args.out_path)
-    
-    
-    
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
+    device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    captioner = pipeline("image-to-text", model=args.model)
+    processor = BlipProcessor.from_pretrained(args.model)
+    model = BlipForConditionalGeneration.from_pretrained(args.model).to(device)
+    model.eval()
 
-    # Typy plikow do obslugi
     exts = {".jpg", ".jpeg", ".png", ".webp"}
-    
-    
-    
-    files = sorted([p for p in images_dir.iterdir() if p.suffix.lower() in exts])
+    images = sorted([p for p in images_dir.iterdir() if p.suffix.lower() in exts])
 
     lines = []
-    
-    
-    for p in files:
-        
-        img = Image.open(p).convert("RGB")
-        res = captioner(img)[0]
-        
-        caption = res.get("generated_text", "").strip()
-        
-        
-        lines.append(f"{p.name} -> {caption}")
 
-    out_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    for img_path in images:
+        image = Image.open(img_path).convert("RGB")
+        inputs = processor(image, return_tensors="pt").to(device)
 
+        with torch.no_grad():
+            output = model.generate(**inputs, max_new_tokens=30)
 
-
-
-
-    # Wypisanie do konsoli
-    for line in lines:
+        caption = processor.decode(output[0], skip_special_tokens=True)
+        line = f"{img_path.name} -> {caption}"
+        lines.append(line)
         print(line)
+
+    out_path.write_text("\n".join(lines), encoding="utf-8")
 
 
 if __name__ == "__main__":
